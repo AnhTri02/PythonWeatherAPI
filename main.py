@@ -3,6 +3,8 @@ import requests
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout)
 
 from PyQt5.QtCore import Qt
+import os
+from dotenv import load_dotenv
 
 #Class WeatherApp that inherits QWidget
 class WeatherApp(QWidget):
@@ -75,7 +77,8 @@ class WeatherApp(QWidget):
     self.get_weather_button.clicked.connect(self.get_weather)        
         
   def get_weather(self):
-    api_key = "2950f7e9bcc56b918f8ab9152c3a02ea" #yes I know my api key is public :)
+    load_dotenv()
+    api_key = os.getenv("api_key")
     city = self.city_input.text()
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
     
@@ -121,10 +124,14 @@ class WeatherApp(QWidget):
     
   
   def display_error(self, message):
+      self.temperature_label.setStyleSheet("font-size: 30px;")
       self.temperature_label.setText(message)
   
   def display_weather(self,data):
-      print(data)
+      temperature_c = round((data["main"]["temp"] - 273.15),1) #main is a dictionary and we access the key temp to get value temperature
+      
+      self.temperature_label.setText(str(temperature_c))
+      
   
   
     
