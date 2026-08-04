@@ -121,7 +121,7 @@ class WeatherApp(QWidget):
     
   
   def display_error(self, message):
-      print(message)
+      self.temperature_label.setText(message)
   
   def display_weather(self,data):
       print(data)
