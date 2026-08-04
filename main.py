@@ -75,22 +75,56 @@ class WeatherApp(QWidget):
     self.get_weather_button.clicked.connect(self.get_weather)        
         
   def get_weather(self):
-    api_key = "2950f7e9bcc56b918f8ab9152c3a02ea"
+    api_key = "2950f7e9bcc56b918f8ab9152c3a02ea" #yes I know my api key is public :)
     city = self.city_input.text()
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
     
+    try:
+        response = requests.get(url) #response object
+        response.raise_for_status()
+        data = response.json()
+        
+        if data["cod"] == 200:
+            self.display_weather(data)
+    except requests.exceptions.HTTPError as http_error:
+        match response.status_code:
+            case 400:
+                self.display_error("Error code 400: Bad request \n Please check your input")
+            case 401:
+                self.display_error("Error code 401: Unauthorized:\nInvalid API key")
+            case 403:
+                self.display_error("Error code 403: Forbidden:\nAccess is denied")
+            case 404:
+                self.display_error("Error code 404: Not found:\nCity not found")
+            case 500:
+                self.display_error("Error code 500: Internal Server Error:\nPlease try again later")
+            case 502:
+                self.display_error("Error code 502: Bad Gateway:\nInvalid response from the server")
+            case 503:
+                self.display_error("Error code 503: Service Unavailable:\nServer is down")
+            case 504:
+                self.display_error("Error code 504: Gateway Timeout:\nNo response from the server")
+            case _:
+                self.display_error(f"Error code ?: HTTP error occurred:\n{http_error}")     
+            
+    except requests.exceptions.ConnectionError:
+        print("Connection Error \n Check your internet connection")
+    except requests.exceptions.Timeout:
+        print("Timeout Error \n The request timed out")
+    except requests.exceptions.TooManyRedirects:
+        print("Too many redirects \n check the url")
+    except requests.exceptions.RequestException as req_error:
+        print(f"Request error:\n {req_error}")
     
-    response = requests.get(url) #response object
-    data = response.json()
-    print(data)
+        
     
     
   
-  def display_error(self):
-      pass
+  def display_error(self, message):
+      print(message)
   
-  def display_weather(self):
-      pass
+  def display_weather(self,data):
+      print(data)
   
   
     
